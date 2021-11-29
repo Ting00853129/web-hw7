@@ -5,98 +5,86 @@
     <meta charset="utf-8">
     <title>Local Storage</title>
     <style type="text/CSS">
-        table { width: 90%; border-collapse: collapse; background-color: lightblue; font-family: Perpetua; box-sizing: border-box; } table, td, th { border: 1px solid black; padding: 4px; } th { text-align: center; color: white; background-color: darkblue; }
-        tr.oddrow { background-color: white; } td { text-align: center; } p { width:100%; }
+        table { width: 90%; border-collapse: collapse; background-color: lightblue; font-family: Perpetua; } table, td, th { border: 1px solid black; padding: 4px; } th { text-align: center; color: white; background-color: darkblue; } tr.oddrow { background-color:
+        white; } td { text-align: center; }
     </style>
     <script type="text/javascript">
-        function loadSearches() {
-            if (!window.sessionStorage.getItem("herePreviously")) {
-                sessionStorage.setItem("herePreviously", "true");
-
-            } // end if
-            var length = localStorage.length; // number of key-value pairs
-            tags = []; // create empty array
-
-            // load all keys
-            for (var i = 0; i < length; ++i) {
-                tags[i] = localStorage.key(i);
-                console.log(tags[i]);
-            } // end for
-
-            //tags.sort(); // sort the keys
-
-            var markup = "<table><thead><tr><th>Title</th><th>Author</th><th>Year</th><th>URL</th></thead><tbody>"; // used to store search link markup
-
-            // build list of links
-            for (var tag in tags) {
-                let text = localStorage.getItem(tags[tag]);
-                console.log(text);
-                let obj = JSON.parse(text);
-
-                markup += "<tr><td>" + obj.title + "</td><td>" + obj.author + "</td><td>" + obj.year + "</td><td> <a href='" + obj.url + "' target='_blank'>" + obj.url + "</td></tr>";
-            } // end for
-
-            markup += "</tbody></table>";
-            console.log(markup);
-            console.log("adf");
-            document.getElementById("display").innerHTML = markup;
-        } // end function loadSearches
-
-        function addBook() {
-            var time = new Date();
-            var title = document.getElementById("title");
-            var author = document.getElementById("author");
-            var year = document.getElementById("year");
-            var url = document.getElementById("url");
-            const book = new Object();
-            book.title = title.value;
-            book.author = author.value;
-            book.year = year.value;
-            book.url = url.value;
-            const myJson = JSON.stringify(book);
-            console.log(myJson);
-            var k = "ntou-" + time.getTime();
-            localStorage.setItem(k, myJson);
-            title.value = "";
-            author.value = "";
-            year.value = "";
-            url.value = "";
-
-            loadSearches();
-            console.log("add");
-        }
-
-        function removeAll() {
-            window.alert("All items were removed!");
-            localStorage.clear();
-            loadSearches();
-        }
+        var input = document.getElementById("addButton");
+        var Table = "<table><thead><tr><th>Title</th><th>Author</th><th>Year</th><th>URL</th></tr></thead><tbody>";
+        var output = "";
 
         function start() {
-            var addButton = document.getElementById("addButton");
-            addButton.addEventListener("click", addBook, false);
-            var clearButton = document.getElementById("removeAllButton");
-            clearButton.addEventListener("click", removeAll, false);
-            console.log("start");
-            loadSearches(); // load the previously saved searches
-        } // end function start
+            var check = localStorage.length;
+            output = Table;
+            while (check > 0) {
+                check -= 1;
+                var key = localStorage.key(check);
+                console.log(key);
+                var ntou = key.startsWith("ntou");
+                if (ntou) {
+                    objA = JSON.parse(localStorage.getItem(localStorage.key(check)));
+                    output += "<td>" + objA.title + "</td><td>" + objA.author + "</td><td>" + objA.year + "</td><td><a href = '" + objA.url + "' target = '_blank'>" + objA.url + "</a></td></tbody>";
+                }
+            }
+            var add = document.getElementById("addButton");
+            var rmv = document.getElementById("removeAllButton");
+            add.addEventListener("click", AddItem, false);
+            rmv.addEventListener("click", Remove, false);
+            document.getElementById("display").innerHTML = output;
+        }
 
+        function AddItem() {
+            var title = document.getElementById("Title");
+            var Author = document.getElementById("Author");
+            var Year = document.getElementById("Year");
+            var BookURL = document.getElementById("URL");
+            if (title.value == "" || Author.value == "" || Year.value == "" || BookURL.value == "") {
+                start();
+                window.alert("Please input Complete Data!!");
+                return;
+            }
+            var objA = {
+                "title": title.value,
+                "author": Author.value,
+                "year": Year.value,
+                "url": BookURL.value
+            };
+            var JSONA = JSON.stringify(objA);
+            var Today = new Date();
+            var KEY = "ntou-" + Today.getTime();
+            localStorage.setItem(KEY, JSONA);
+            output += "<td>" + objA.title + "</td><td>" + objA.author + "</td><td>" + objA.year + "</td><td><a href = '" + objA.url + "' target = '_blank'>" + objA.url + "</a></td></tbody>";
+            document.getElementById("display").innerHTML = output;
+        }
+
+        function Remove() {
+            output = "";
+            var len = localStorage.length;
+            while (len > 0) {
+                len -= 1;
+                var key = localStorage.key(len);
+                console.log(key);
+                var check = key.startsWith("ntou");
+                if (check) {
+                    localStorage.removeItem(localStorage.key(len));
+                }
+            }
+            document.getElementById("display").innerHTML = output;
+            start();
+            window.alert("All items were removed!");
+        }
         window.addEventListener("load", start, false);
     </script>
 </head>
 
 <body>
+    <a href="https://ting00853129.github.io/web-hw7/00853129-HW7-2">GitHub Link</a>
     <form action="#">
         <p>
-
-            <label>Book Title:<input id ="title" type="text" ></label>
-
-            <label>Author(s):<input id ="author" type="text"></label>
-
-            <label>Year:<input id ="year" type="text"></label>
-
-            <label>Book URL:<input id ="url" type="text"></label>
-
+            <label>Book Title:<input type="text" id="Title"></label>
+            <label>Author(s):<input type="text" id="Author"></label>
+            <label>Year:<input type="text" id="Year"></label>
+            <label>Book URL:<input type="text" id="URL"></label>
         </p>
         <p>
             <input type="button" value="Add New Item" id="addButton">
